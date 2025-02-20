@@ -1,6 +1,7 @@
 ﻿using bytebank.Modelos.Conta;
 using bytebank_ATENDIMENTO.bytebank.Exceptions;
 using Newtonsoft.Json;
+using System.Xml.Serialization;
 
 namespace bytebank_ATENDIMENTO.bytebank.Atendimento
 {
@@ -13,7 +14,7 @@ namespace bytebank_ATENDIMENTO.bytebank.Atendimento
           new ContaCorrente(95, "951258-X"){Saldo=200,Titular = new Cliente{Cpf="22222",Nome ="Pedro"}},
           new ContaCorrente(94, "987321-W"){Saldo=60,Titular = new Cliente{Cpf="33333",Nome ="Marisa"}}
         };
-           
+
 
         public void AtendimentoCliente()
         {
@@ -31,7 +32,8 @@ namespace bytebank_ATENDIMENTO.bytebank.Atendimento
                     Console.WriteLine("===4 - Ordenar Contas       ===");
                     Console.WriteLine("===5 - Pesquisar Conta      ===");
                     Console.WriteLine("===6 - Exportar Contas      ===");
-                    Console.WriteLine("===7 - Sair do Sistema      ===");
+                    Console.WriteLine("===7 - Exportar em XML      ===");
+                    Console.WriteLine("===8 - Sair do Sistema      ===");
                     Console.WriteLine("===============================");
                     Console.WriteLine("\n\n");
                     Console.Write("Digite a opção desejada: ");
@@ -65,6 +67,9 @@ namespace bytebank_ATENDIMENTO.bytebank.Atendimento
                             ExportarContas();
                             break;
                         case '7':
+                            ExportarContasXML();
+                            break;
+                        case '8':
                             EncerrarAplicacao();
                             break;
                         default:
@@ -162,6 +167,43 @@ namespace bytebank_ATENDIMENTO.bytebank.Atendimento
                 default:
                     Console.WriteLine("Opção não implementada.");
                     break;
+            }
+
+        }
+
+        private void ExportarContasXML()
+        {
+            Console.Clear();
+            Console.WriteLine("===============================");
+            Console.WriteLine("===     EXPORTAR CONTAS XML ===");
+            Console.WriteLine("===============================");
+            Console.WriteLine("\n");
+
+            if (_listaDeContas.Count <= 0)
+            {
+                Console.WriteLine("... Não existe nenhuma conta para exportar no formato XML");
+                Console.ReadKey();
+            }
+            else
+            {
+                var contasXML = new XmlSerializer(typeof(List<ContaCorrente>));
+
+                try
+                {
+                    FileStream fs = new FileStream(@"C:\temp\export\contas.xml", FileMode.Create);
+
+                    using (StreamWriter streamWriter = new StreamWriter(fs))
+                    {
+                        contasXML.Serialize(streamWriter, _listaDeContas);
+                    }
+                    Console.WriteLine(@"Arquivo salvo em C:\temp\export\");
+                    Console.ReadKey();
+                }
+                catch(Exception excecao)
+                {
+                    throw new ByteBankException(excecao.Message);
+                    Console.ReadKey();
+                }
             }
 
         }
