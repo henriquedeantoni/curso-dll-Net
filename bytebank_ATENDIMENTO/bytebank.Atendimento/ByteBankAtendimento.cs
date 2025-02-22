@@ -1,6 +1,7 @@
 ﻿using bytebank.Modelos.Conta;
 using bytebank_ATENDIMENTO.bytebank.Exceptions;
 using Newtonsoft.Json;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Xml.Serialization;
 
 namespace bytebank_ATENDIMENTO.bytebank.Atendimento
@@ -10,9 +11,11 @@ namespace bytebank_ATENDIMENTO.bytebank.Atendimento
     {
 
         private List<ContaCorrente> _listaDeContas = new List<ContaCorrente>(){
-          new ContaCorrente(95, "123456-X"){Saldo=100,Titular = new Cliente{Cpf="11111",Nome ="Henrique"}},
-          new ContaCorrente(95, "951258-X"){Saldo=200,Titular = new Cliente{Cpf="22222",Nome ="Pedro"}},
-          new ContaCorrente(94, "987321-W"){Saldo=60,Titular = new Cliente{Cpf="33333",Nome ="Marisa"}}
+          new ContaCorrente(95, "123456-X"){Saldo=100,Titular = new Cliente{Cpf="015436785-48",Nome ="Henrique"}},
+          new ContaCorrente(95, "951258-X"){Saldo=200,Titular = new Cliente{Cpf="022746195-41",Nome ="Pedro"}},
+          new ContaCorrente(94, "987321-W"){Saldo=60,Titular = new Cliente{Cpf="134487254-13",Nome ="Marisa"}},
+          new ContaCorrente(92, "751378-X"){Saldo=365,Titular = new Cliente{Cpf="026182470-10",Nome ="Cleber"}},
+          new ContaCorrente(94, "124322-W"){Saldo=60,Titular = new Cliente{Cpf="145325120-75",Nome ="Raul"}},
         };
 
 
@@ -21,20 +24,21 @@ namespace bytebank_ATENDIMENTO.bytebank.Atendimento
             try
             {
                 char opcao = '0';
-                while (opcao != '7')
+                while (opcao != '9')
                 {
                     Console.Clear();
                     Console.WriteLine("===============================");
-                    Console.WriteLine("===       Atendimento       ===");
-                    Console.WriteLine("===1 - Cadastrar Conta      ===");
-                    Console.WriteLine("===2 - Listar Contas        ===");
-                    Console.WriteLine("===3 - Remover Conta        ===");
-                    Console.WriteLine("===4 - Ordenar Contas       ===");
-                    Console.WriteLine("===5 - Pesquisar Conta      ===");
-                    Console.WriteLine("===6 - Exportar Contas      ===");
-                    Console.WriteLine("===7 - Exportar em XML      ===");
-                    Console.WriteLine("===8 - Sair do Sistema      ===");
-                    Console.WriteLine("===============================");
+                    Console.WriteLine("===        Atendimento       ===");
+                    Console.WriteLine("=== 1 - Cadastrar Conta      ===");
+                    Console.WriteLine("=== 2 - Listar Contas        ===");
+                    Console.WriteLine("=== 3 - Remover Conta        ===");
+                    Console.WriteLine("=== 4 - Ordenar Contas       ===");
+                    Console.WriteLine("=== 5 - Pesquisar Conta      ===");
+                    Console.WriteLine("=== 6 - Exportar Contas      ===");
+                    Console.WriteLine("=== 7 - Exportar em XML      ===");
+                    Console.WriteLine("=== 8 - Exportar em binário  ===");
+                    Console.WriteLine("=== 9 - Sair do Sistema      ===");
+                    Console.WriteLine("================================");
                     Console.WriteLine("\n\n");
                     Console.Write("Digite a opção desejada: ");
                     try
@@ -69,7 +73,10 @@ namespace bytebank_ATENDIMENTO.bytebank.Atendimento
                         case '7':
                             ExportarContasXML();
                             break;
-                        case '8':
+                        case '7':
+                            ExportarContasBin();
+                            break;
+                        case '9':
                             EncerrarAplicacao();
                             break;
                         default:
@@ -206,6 +213,38 @@ namespace bytebank_ATENDIMENTO.bytebank.Atendimento
                 }
             }
 
+        }
+
+        private void ExportarContasBin()
+        {
+            Console.Clear();
+            Console.WriteLine("===============================");
+            Console.WriteLine("=== EXPORTAR CONTAS BINÁRIO ===");
+            Console.WriteLine("===============================");
+            Console.WriteLine("\n");
+
+            if(_listaDeContas.Count <=0)
+            {
+                Console.WriteLine("... Não existe nenhuma conta para exportar no formato binário");
+                Console.ReadKey();
+            }
+            else
+            {
+                
+                try
+                {
+                    using (FileStream fs = new FileStream(@"C:\temp\export\contas.bin", FileMode.Create))
+                    {
+                        BinaryFormatter formatter = new BinaryFormatter();
+                        formatter.Serialize(fs, this);
+                    }
+                }
+                catch (Exception excecao)
+                {
+                    throw new ByteBankException(excecao.Message);
+                    Console.ReadKey();
+                }
+            }
         }
 
         private void ExibirListaDeContas(List<ContaCorrente> contasPorAgencia)
